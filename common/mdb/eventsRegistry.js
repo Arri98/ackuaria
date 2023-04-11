@@ -1,9 +1,12 @@
 var db = require('./dataBase').db;
+const events = db.collection("events");
+
+console.log(events);
 
 var getEvent = exports.getEvent = function(id, callback) {
     "use strict";
 
-    db.events.findOne({
+    events.findOne({
         _id: db.ObjectId(id)
     }, function(err, event) {
         if (event === undefined) {
@@ -29,8 +32,8 @@ var hasEvent = exports.hasEvent = function(id, callback) {
 
 exports.addEvent = function(event, callback) {
     "use strict";
-
-    db.events.save(event, function(error, saved) {
+    console.log('add events');
+    events.insertOne(event, function(error, saved) {
         if (error) console.log('MongoDB: Error adding event: ', error);
         if (callback !== undefined) {
             callback(saved);
@@ -46,7 +49,7 @@ var removeEvent = exports.removeEvent = function(id, callback) {
 
     hasEvent(id, function(hasEvent) {
         if (hasEvent) {
-            db.events.remove({
+            events.deleteMany({
                 _id: db.ObjectId(id)
             }, function(error, removed) {
                 if (error) console.log('MongoDB: Error removing event: ', error);
@@ -58,7 +61,7 @@ var removeEvent = exports.removeEvent = function(id, callback) {
 
 exports.removeEventsByRoom = function(roomId, callback) {
 
-    db.events.find({
+    events.find({
         room: roomId
     }).toArray(function(err, events) {
         if (err || !events) {
@@ -76,7 +79,7 @@ exports.removeEventsByRoom = function(roomId, callback) {
 };
 
 exports.getEvents = function(callback) {
-    db.events.find({}).toArray(function(err, events) {
+    events.find({}).toArray(function(err, events) {
         if (err) {
             console.log("Error: " + err);
         } else {
@@ -86,7 +89,7 @@ exports.getEvents = function(callback) {
 };
 
 exports.getEventsOfRoom = function(roomId, callback) {
-    db.events.find({
+    events.find({
         room: roomId
     }).toArray(function(err, events) {
         if (err || !events) {
@@ -98,7 +101,7 @@ exports.getEventsOfRoom = function(roomId, callback) {
 };
 
 exports.getEventsOfUser = function(userId, callback) {
-    db.events.find({
+    events.find({
         user: userId
     }).toArray(function(err, events) {
         if (err || !events) {
@@ -110,7 +113,7 @@ exports.getEventsOfUser = function(userId, callback) {
 };
 
 exports.getEventsOfType = function(type, callback) {
-    db.events.find({
+    events.find({
         type: type
     }).toArray(function(err, events) {
         if (err || !events) {
@@ -125,7 +128,7 @@ exports.getEventsByDate = function(timestampInit, timestampFinal, callback) {
 
     if (timestampInit && timestampFinal) {
 
-        db.events.find({
+        events.find({
             timestamp: {
                 $gt: timestampInit,
                 $lt: timestampFinal
@@ -140,7 +143,7 @@ exports.getEventsByDate = function(timestampInit, timestampFinal, callback) {
 
     } else if (timestampInit && !timestampFinal) {
 
-        db.events.find({
+        events.find({
             timestamp: {
                 $gt: timestampInit
             }
@@ -156,7 +159,7 @@ exports.getEventsByDate = function(timestampInit, timestampFinal, callback) {
 
     } else if (timestampFinal && !timestampinit) {
 
-        db.events.find({
+        events.find({
             timestamp: {
                 $lt: timestampFinal
             }
@@ -178,7 +181,7 @@ exports.getEventsByDateAndType = function(timestampInit, timestampFinal, type, c
 
     if (timestampInit && timestampFinal) {
 
-        db.events.find({
+        events.find({
             timestamp: {
                 $gt: timestampInit,
                 $lt: timestampFinal
@@ -194,7 +197,7 @@ exports.getEventsByDateAndType = function(timestampInit, timestampFinal, type, c
 
     } else if (timestampInit && !timestampFinal) {
 
-        db.events.find({
+        events.find({
             timestamp: {
                 $gt: timestampInit
             }
@@ -210,7 +213,7 @@ exports.getEventsByDateAndType = function(timestampInit, timestampFinal, type, c
 
     } else if (timestampFinal && !timestampinit) {
 
-        db.events.find({
+        events.find({
             timestamp: {
                 $lt: timestampFinal
             }
@@ -228,7 +231,7 @@ exports.getEventsByDateAndType = function(timestampInit, timestampFinal, type, c
 
 exports.removeAllEvents = function() {
 
-    db.events.remove();
+    events.deleteMany();
     //callback("All events removed succesfully");
 
 };

@@ -1,9 +1,10 @@
 var db = require('./dataBase').db;
+const sessions = db.collection("sessions")
 
 var getSession = exports.getSession = function(id, callback) {
 	"use strict";
 
-	db.sessions.findOne({
+	sessions.findOne({
 		_id: db.ObjectId(id)
 	}, function(err, session) {
 		if (session === undefined) {
@@ -30,7 +31,7 @@ var hasSession = exports.hasSession = function(id, callback) {
 exports.addSession = function(session, callback) {
 	"use strict";
 
-	db.sessions.save(session, function(error, saved) {
+	sessions.insertOne(session, function(error, saved) {
 		if (error) console.log('MongoDB: Error adding session: ', error);
 		if (callback !== undefined) {
 			callback(saved);
@@ -41,11 +42,12 @@ exports.addSession = function(session, callback) {
 
 exports.getSessions = function(callback) {
 
-    db.sessions.find({}).toArray(function(err, sessions) {
+    sessions.find({}).toArray(function(err, sessions) {
         if (err || !sessions) {
         	callback([]);
             console.log("There are no sessions ");
         } else {
+			console.log(sessions);
             callback(sessions);
         }
     });
@@ -53,7 +55,7 @@ exports.getSessions = function(callback) {
 
 exports.getSessionsOfRoom = function(roomID, callback) {
 
-    db.sessions.find({roomID: roomID}).toArray(function(err, sessions) {
+    sessions.find({roomID: roomID}).toArray(function(err, sessions) {
         if (err || !sessions) {
          	callback([]);
             console.log("There are no sessions ");
@@ -65,7 +67,7 @@ exports.getSessionsOfRoom = function(roomID, callback) {
 
 exports.getSessionsOfUser = function(userID, callback) {
 	var sessions = [];
-    db.sessions.find().forEach(function(err, doc) {
+    sessions.find().forEach(function(err, doc) {
     	if (!doc) callback(sessions);
     	else {
     		var streams = doc.streams;
@@ -82,7 +84,7 @@ exports.getSessionsOfUser = function(userID, callback) {
 
 exports.getSessionsOfStream = function(streamID, callback) {
 	var sessions = [];
-    db.sessions.find().forEach(function(err, doc) {
+    sessions.find().forEach(function(err, doc) {
     	if (!doc) callback(sessions);
     	else {
     		var streams = doc.streams;
@@ -105,7 +107,7 @@ exports.getSessionsOfStream = function(streamID, callback) {
 
 exports.getSessionsBySessionId = function(sessionId, callback) {
 
-    db.sessions.find({sessionId: sessionId}).toArray(function(err, sessions) {
+    sessions.find({sessionId: sessionId}).toArray(function(err, sessions) {
         if (err || !sessions) {
             console.log("There are no sessions ");
         } else {
@@ -116,8 +118,8 @@ exports.getSessionsBySessionId = function(sessionId, callback) {
 
 
 exports.getPublishersInSession = function(sessionId, callback) {
-	
-    db.sessions.findOne({
+
+    sessions.findOne({
         sessiomId: sessionId
     }, function(err, session) {
         if (session) {
@@ -131,7 +133,7 @@ exports.getPublishersInSession = function(sessionId, callback) {
 
 exports.removeAllSessions = function() {
 
-    db.sessions.remove();
+    sessions.deleteMany();
 }
 
 //getSessionByDate

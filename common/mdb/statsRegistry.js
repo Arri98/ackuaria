@@ -1,10 +1,10 @@
 var db = require('./dataBase').db;
-
+const stats = db.collection("stats");
 
 var getStat = exports.getStat = function(id, callback) {
     "use strict";
 
-    db.stats.findOne({
+    stats.findOne({
         _id: db.ObjectId(id)
     }, function(err, stat) {
         if (stat === undefined) {
@@ -31,7 +31,7 @@ var hasStat = exports.hasStat = function(id, callback) {
 exports.addStat = function(stat, callback) {
     "use strict";
 
-    db.stats.save(stat, function(error, saved) {
+    stats.insertOne(stat, function(error, saved) {
         if (error) console.log('MongoDB: Error adding stat: ', error);
         if (callback !== undefined) {
             callback(saved);
@@ -48,7 +48,7 @@ var removeStat = exports.removeStat = function(id, callback) {
 
     hasStat(id, function(hasStat) {
         if (hasStat) {
-            db.stats.remove({
+            stats.deleteMany({
                 _id: db.ObjectId(id)
             }, function(error, removed) {
                 if (error) console.log('MongoDB: Error removing stat: ', error);
@@ -60,7 +60,7 @@ var removeStat = exports.removeStat = function(id, callback) {
 
 exports.removeStatsByRoom = function(roomId, callback) {
 
-    db.stats.find({
+    stats.find({
         room: roomId
     }).toArray(function(err, stats) {
         if (err || !stats) {
@@ -77,7 +77,7 @@ exports.removeStatsByRoom = function(roomId, callback) {
 
 //Ahora mismo devuelve las stats del propio publisher y de sus subscribers
 exports.getStatsByPublisher = function(pubId, callback) {
-    db.stats.find({
+    stats.find({
         pub: pubId
     }).toArray(function(err, stats) {
         if (err || !stats) {
@@ -92,7 +92,7 @@ exports.getStatsByPublisher = function(pubId, callback) {
 
 // subId es un USER, no un stream
 exports.getStatsBySubscriber = function(subId, callback) {
-    db.stats.find({
+    stats.find({
         subs: subId
     }).toArray(function(err, stats) {
         if (err || !stats) {
@@ -106,7 +106,7 @@ exports.getStatsBySubscriber = function(subId, callback) {
 }
 
 exports.getStats = function(callback) {
-    db.stats.find({}).toArray(function(err, stats) {
+    stats.find({}).toArray(function(err, stats) {
         if (err || !stats) {
             console.log("There are no stats")
         } else {
@@ -119,7 +119,7 @@ exports.getStats = function(callback) {
 
 
 exports.getStatsBySubsAndPub = function(pubId, subId, callback) {
-    db.stats.find({
+    stats.find({
         subs: subId,
         pub: pubId
     }).toArray(function(err, stats) {
@@ -136,7 +136,7 @@ exports.getStatsBySubsAndPub = function(pubId, subId, callback) {
 exports.getStatsByDate = function(timestampInit, timestampFinal, callback) {
 
     if (timestampInit && timestampFinal) {
-        db.stats.find({
+        stats.find({
             timestamp: {
                 $gt: timestampInit,
                 $lt: timestampFinal
@@ -151,7 +151,7 @@ exports.getStatsByDate = function(timestampInit, timestampFinal, callback) {
             }
         })
     } else if (timestampInit && !timestampFinal) {
-        db.stats.find({
+        stats.find({
             timestamp: {
                 $gt: timestampInit
             }
@@ -165,7 +165,7 @@ exports.getStatsByDate = function(timestampInit, timestampFinal, callback) {
             }
         })
     } else if (timestampFinal && !timestampInit) {
-        db.stats.find({
+        stats.find({
             timestamp: {
                 $lt: timestampFinal
             }
@@ -183,5 +183,5 @@ exports.getStatsByDate = function(timestampInit, timestampFinal, callback) {
 
 exports.removeAllStats = function() {
 
-    db.stats.remove();
+    stats.deleteMany();
 };

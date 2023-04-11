@@ -1,8 +1,9 @@
 var db = require('./dataBase').db;
+const rooms = db.collection("rooms");
 
 exports.hasRoom= function(roomID, callback) {
     "use strict";
-    db.rooms.findOne({
+    rooms.findOne({
         roomID: roomID
     }, function(err, room) {
         if (room === null) {
@@ -17,7 +18,7 @@ exports.hasRoom= function(roomID, callback) {
 exports.getRoom = function(roomID, callback) {
     "use strict";
 
-    db.rooms.findOne({
+    rooms.findOne({
         roomID: roomID
     }, function(err, room) {
         if (room === undefined) {
@@ -30,8 +31,8 @@ exports.getRoom = function(roomID, callback) {
 };
 
 exports.getRoomsData = function (roomsArray, callback) {
-    db.rooms.find({ 
-        roomID : { $in : roomsArray } 
+    rooms.find({
+        roomID : { $in : roomsArray }
     }, function(err, roomList) {
         if (roomList === undefined) {
             console.log('Rooms not found');
@@ -44,8 +45,8 @@ exports.getRoomsData = function (roomsArray, callback) {
 
 exports.addRoom = function(room, callback) {
     "use strict";
-
-    db.rooms.save(room, function(error, saved) {
+    console.log('addRoom');
+    rooms.insertOne(room, function(error, saved) {
         if (error) console.log('MongoDB: Error adding room: ', error);
         if (callback !== undefined) {
             callback(saved);
@@ -57,7 +58,7 @@ exports.updateRoomPublish = function(roomId, pubId, callback) {
     var pubs = [];
     var nPubs;
 
-    db.rooms.findOne({
+    rooms.findOne({
         roomId: roomId
     }, function(err, room) {
         if (room) {
@@ -67,7 +68,7 @@ exports.updateRoomPublish = function(roomId, pubId, callback) {
             nPubs++;
             pubs.push(pubId);
 
-            db.rooms.update({
+            rooms.update({
                 roomId: roomId
             }, {
                 $set: {
@@ -88,7 +89,7 @@ exports.updateRoomPublish = function(roomId, pubId, callback) {
 
 exports.updateRoomUnpublish = function(roomId, pubId, callback) {
 
-    db.rooms.findOne({
+    rooms.findOne({
         roomId: roomId
     }, function(err, room) {
         if (room) {
@@ -96,7 +97,7 @@ exports.updateRoomUnpublish = function(roomId, pubId, callback) {
             nPubs = room.nPubs;
             nPubs--;
 
-            db.rooms.update({
+            rooms.update({
                 roomId: roomId
             }, {
                 $set: {
@@ -121,12 +122,12 @@ exports.updateRoomUnpublish = function(roomId, pubId, callback) {
 
 exports.updateRoomSession = function(roomId, nSession, callback) {
 
-    db.rooms.findOne({
+    rooms.findOne({
         roomId: roomId
     }, function(err, room) {
         if (room) {
 
-            db.rooms.update({
+            rooms.update({
                 roomId: roomId
             }, {
                 $set: {
@@ -144,7 +145,7 @@ exports.updateRoomSession = function(roomId, nSession, callback) {
 
 exports.getRooms = function(callback) {
 
-    db.rooms.find({}).toArray(function(err, rooms) {
+    rooms.find({}).toArray(function(err, rooms) {
         if (err || !rooms) {
             console.log("There are no rooms ");
         } else {
@@ -155,8 +156,8 @@ exports.getRooms = function(callback) {
 
 // Devuelve un array con todos los publishers de una room
 exports.getPublishersInRoom = function(roomId, callback) {
-    
-    db.rooms.findOne({
+    console.log('getPublishersInRoom');
+    rooms.findOne({
         roomId: roomId
     }, function(err, room) {
         if (room) {
@@ -170,8 +171,9 @@ exports.getPublishersInRoom = function(roomId, callback) {
 
 // Devuelve un array con todos los publishers
 exports.getPublishers = function(callback) {
+    console.log('getPublishers')
     var a = [];
-    db.rooms.find({}, function(err, rooms) {
+    rooms.find({}, function(err, rooms) {
         for (room in rooms){
             a = a.concat(rooms[room].publishers);
         }
@@ -182,7 +184,7 @@ exports.getPublishers = function(callback) {
 }
 exports.getTotalRooms = function(callback) {
     var a = [];
-    db.rooms.find({}, function(err, rooms) {
+    rooms.find({}, function(err, rooms) {
         if (err){
             callback(err);
         }
@@ -206,5 +208,5 @@ exports.getTotalRooms = function(callback) {
 
 exports.removeAllRooms = function() {
 
-    db.rooms.remove();
+    rooms.deleteMany();
 }

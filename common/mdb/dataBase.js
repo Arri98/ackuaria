@@ -3,9 +3,14 @@
 
 
 // Logger
+const MongoClient = require("mongodb").MongoClient;
 
 var dataBaseURL = require("./../../ackuaria_config").ackuaria.dataBaseURL;
 
-var collections = ["events", "stats", "rooms", "sessions"];
-exports.db = require("mongojs")(dataBaseURL, collections);
+const databaseName = require("./../../ackuaria_config").ackuaria.databaseName;
+
+const client = new MongoClient(dataBaseURL);
+client.connect();
+
+exports.db = client.db(databaseName);
 

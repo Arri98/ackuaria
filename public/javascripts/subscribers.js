@@ -92,7 +92,6 @@ $(document).ready(function(){
             }
             if (stats.video || stats.audio) {
               subscribers[id] = stats;
-              if (sub_modal_now == id) {
                 updateRR(id, stats.audio, stats.video, stats.connection, event.timestamp);
                 chartManager.updateQualityLayers(pubID, id, event);
               }

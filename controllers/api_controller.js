@@ -114,13 +114,14 @@ exports.info_rooms = function(req, res) {
 
 var get_room_list = exports.get_room_list = function(queries, initDate, finalDate, callback) {
    var info = {};
+   console.log(queries)
    sessionsRegistry.getSessions(function(sessions){
       var nSessions = 0;
       var rooms = {};
       var users = {};
       var timePublished = 0;
       var room_list = {};
-
+      console.log(sessions);
       for (var s in sessions) {
 
          var roomID = sessions[s].roomID;
@@ -187,7 +188,7 @@ var get_room_list = exports.get_room_list = function(queries, initDate, finalDat
 
 exports.info_room = function(req, res) {
    var roomID = req.params.roomID;
-   var info = {};  
+   var info = {};
    var users = {};
    var room_list = {};
 
@@ -199,7 +200,7 @@ exports.info_room = function(req, res) {
    var initDate, finalDate;
    if (initURL) initDate = formatDate(initURL);
    if (finalURL) finalDate = formatDate(finalURL);
-   
+
    sessionsRegistry.getSessionsOfRoom(roomID, function(sessions){
       var nSessions = 0;
       var timePublished = 0;

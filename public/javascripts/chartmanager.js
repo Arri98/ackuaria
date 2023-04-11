@@ -140,7 +140,7 @@ let ChartManager = () => {
       drawBWEChart(subID);
       sub_modal_now = subID;
       return;
-    } else if (sub_modal_now == subID) {
+    }
       const date = data.date;
       if (data.FLVideo !== undefined) {
         const FLVideo = data.FLVideo * 100 / 256;
@@ -162,7 +162,7 @@ let ChartManager = () => {
           val: data};
         updateBWEChart(newDataBWE);
       }
-    }
+
   }
 
   that.updateQualityLayers = (pubID, id, event) => {
