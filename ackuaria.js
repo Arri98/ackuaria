@@ -5,6 +5,7 @@ var eventsRegistry = require('./common/mdb/eventsRegistry');
 var sessionsRegistry = require('./common/mdb/sessionsRegistry');
 var ackuariaController = require('./controllers/ackuaria_controller');
 var apiController = require('./controllers/api_controller');
+var treeController = require('./controllers/treeController');
 
 
 GLOBAL.config = config || {};
@@ -143,6 +144,12 @@ ackuaria_router.post('/delete/:roomID', function(req, res) {
   res.send(API.rooms[roomID]);
 })
 
-ackuaria_router.get('/agents', ackuariaController.loadAgents)
+ackuaria_router.get('/agents', ackuariaController.loadAgents);
 
-ackuaria_router.get('/agent', ackuariaController.loadAgent)
+ackuaria_router.get('/agent', ackuariaController.loadAgent);
+
+ackuaria_router.get('/tree/:treeId');
+
+ackuaria_router.get('/delays/queue/:subId', treeController.getSubDelay);
+ackuaria_router.get('/delays/node/:treeId', treeController.getNodeDelay);
+ackuaria_router.get('/treeEvents/:treeId', treeController.getAllTreeEvents);

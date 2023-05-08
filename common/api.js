@@ -8,6 +8,7 @@ var eventsRegistry = require('./mdb/eventsRegistry');
 var statsRegistry = require('./mdb/statsRegistry');
 var sessionsRegistry = require('./mdb/sessionsRegistry');
 var roomsRegistry = require('./mdb/roomsRegistry');
+var treeRegistry = require('./mdb/treeRegistry');
 var amqper = require('./../common/amqper');
 var N = require('./../nuve');
 
@@ -29,7 +30,7 @@ const statsSubscriptions = new Map();
 const isEmpty = (obj) => {
   for (var key in obj) {
     if (obj.hasOwnProperty(key))
-    return false;
+      return false;
   }
   return true;
 };
@@ -43,26 +44,26 @@ const search = (id, myArray) => {
 };
 
 const sendStatsToClients = (event) => {
-    event.timestamp = (new Date()).getTime();
-    statsSubscriptions.forEach((subscription, streamID) => {
-      subscription.socketIds.forEach((value, socketId) => {
-        let subscribedSocket = API.sockets.get(socketId)
-        if (subscribedSocket) {
-          subscribedSocket.emit('newStats', {
-            event: event,
-          });
-        }
-      });
+  event.timestamp = (new Date()).getTime();
+  statsSubscriptions.forEach((subscription, streamID) => {
+    subscription.socketIds.forEach((value, socketId) => {
+      let subscribedSocket = API.sockets.get(socketId)
+      if (subscribedSocket) {
+        subscribedSocket.emit('newStats', {
+          event: event,
+        });
+      }
     });
+  });
 };
 
 const subscribeToLicodeStatsStream = (streamId, duration, interval) => {
   log.debug(`Subscribing to licode stat stream id ${streamId} for ${duration}s with interval ${interval}s`);
   return new Promise((resolve, reject) => {
     amqper.broadcast('ErizoJS', {method: 'subscribeToStats', args: [parseInt(streamId), duration, interval]},
-    (response) => {
-        resolve(response);
-    })
+        (response) => {
+          resolve(response);
+        })
   });
 };
 
@@ -113,12 +114,12 @@ const removeConnection = (socketId) => {
 };
 
 function getParameterByName(name, url) {
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return '';
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  name = name.replace(/[\[\]]/g, "\\$&");
+  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(url);
+  if (!results) return '';
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
 const sendEventToClients = function(event, rooms, streams, users, states) {
@@ -468,6 +469,11 @@ API.api.event = function(theEvent) {
         var indexRoom = API.rooms[roomID].streams.indexOf(streamID);
         if (indexRoom > -1) API.rooms[roomID].streams.splice(indexRoom, 1);
         break;
+
+      case "tree_event":
+        processTreeEvent(theEvent);
+        break;
+
       default:
         break;
     }
@@ -481,6 +487,36 @@ API.api.event = function(theEvent) {
     log.error("Error receiving event:", err);
   }
 };
+
+const processTreeEvent = (event) => {
+  switch (event.event){
+    case "add_subscriber":
+      const subscriber = {id: event.id, timestamp: event.timestamp, treeId: event.streamId, publisherNodeId: event.publisherNodeId}
+      treeRegistry.addSubscriber(subscriber);
+      break;
+    case "add_node":
+      const node = {treeId: event.streamId, levelId: event.level, id: event.nodeId, parentId: event.parentId, timestamp: event.timestamp};
+      treeRegistry.addNode(node)
+      break;
+    case "need_node":
+      const nodeEvent = {timestamp: event.timestamp, treeId: event.streamId, parentId: event.parentId, nodeId: event.nodeId };
+      treeRegistry.needNode(nodeEvent)
+      break;
+    case "enqueue_subscriber":
+      const enqueuePetition = {id: event.id, treeId: event.streamId, timestamp: event.timestamp};
+      treeRegistry.enqueueSusbscriber(enqueuePetition);
+      break;
+    case "created":
+      const tree = {treeId: event.streamId, timestamp:event.timestamp, sessionId: 3};
+      treeRegistry.addTree(tree);
+      break;
+    case "add_level":
+      const level = {treeId: event.streamId, id: event.level, maxSubsPerNode: event.maxSubsPerNode, maxNextLevelNodes: event.maxNextLevelNodes, timestamp: event.timestamp };
+      treeRegistry.addLevel(level);
+      break;
+  }
+};
+
 
 API.api.stats = function(theStats) {
   theStats = theStats.message;
