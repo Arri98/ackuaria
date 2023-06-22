@@ -8,7 +8,7 @@ var apiController = require('./controllers/api_controller');
 var treeController = require('./controllers/treeController');
 
 
-GLOBAL.config = config || {};
+global.config = config || {};
 
 // Load submodules with updated config
 var amqper = require('./common/amqper');
@@ -36,13 +36,13 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 app.set('view engine', 'ejs');
 
-http.listen(GLOBAL.config.ackuaria.port, function() {
-   console.log('listening on *:' + GLOBAL.config.ackuaria.port);
+http.listen(global.config.ackuaria.port, function() {
+   console.log('listening on *:' + global.config.ackuaria.port);
 });
 
 var api = API.api;
 
-N.API.init(GLOBAL.config.nuve.superserviceID, GLOBAL.config.nuve.superserviceKey, GLOBAL.config.nuve.host);
+N.API.init(global.config.nuve.superserviceID, global.config.nuve.superserviceKey, global.config.nuve.host);
 
 N.API.getRooms(function(roomList) {
    API.lastUpdated = new Date().getTime();
@@ -69,11 +69,12 @@ amqper.connect(function() {
   var getErizoAgents = function() {
     API.agents = {};
     amqper.broadcast('ErizoAgent', {method: 'getErizoAgents', args: []}, function (agent) {
-      // console.log(agent);
       if (agent === 'timeout') {
          console.log('No agents available');
          return;
       }
+      treeController.addAgent({...agent, timestamp: Date.now()});
+
       API.agents[agent.info.id] = agent;
       API.agents[agent.info.id].timeout = 0;
       var streams = {};
@@ -94,7 +95,7 @@ amqper.connect(function() {
     });
   }
   getErizoAgents();
-  setInterval(getErizoAgents, 5000);
+  setInterval(getErizoAgents, 100);
 });
 
 io.on('connection', API.addNewConnection);

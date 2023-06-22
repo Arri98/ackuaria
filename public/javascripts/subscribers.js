@@ -101,7 +101,6 @@ $(document).ready(function(){
         if (publisherVideo.length > 0 || publisherAudio || publisherConnection) {
           updateSR(publisherAudio, publisherVideo, publisherConnection, event.timestamp);
         }
-      }
     });
 
     $('.publisher').click(function(){ window.location = '/ackuaria/subs'});

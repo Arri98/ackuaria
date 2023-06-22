@@ -18,3 +18,7 @@ exports.getAllTreeEvents = async (req,res,next) => {
     const data = await treeRegistry.getAllEvents(id);
     res.json(data);
 };
+
+exports.addAgent = async (cpu) => {
+   await treeRegistry.addAgent(cpu);
+};

@@ -5,6 +5,8 @@ const enqueues = db.collection("enqueues");
 const nodeRequests = db.collection("nodeRequests");
 const nodes = db.collection("nodes");
 const subscribers = db.collection("subscribers");
+const erizos = db.collection("erizos");
+const agent = db.collection("agents");
 
 const getTree = exports.getTree = function(id, callback) {
     "use strict";
@@ -124,6 +126,33 @@ exports.addLevel = function(level, callback) {
     });
 };
 
+exports.addErizo = function(erizo, callback) {
+    "use strict";
+
+    erizos.insertOne({erizo}, function(error, saved) {
+        if (error){
+            console.log('MongoDB: Error adding erizo: ', error);
+        }
+        if (callback !== undefined) {
+            callback(saved);
+        }
+    });
+};
+
+exports.addAgent = function(cpu, callback) {
+    "use strict";
+
+    agent.insertOne(cpu, function(error, saved) {
+        if (error){
+            console.log('MongoDB: Error adding sub: ', error);
+        }
+        if (callback !== undefined) {
+            callback(saved);
+        }
+    });
+};
+
+
 exports.addSubscriber = function(sub, callback) {
     "use strict";
 
@@ -168,11 +197,11 @@ exports.getNodeCreationDelay = async (treeId) => {
 exports.getAllEvents = async (treeId) => {
     console.log(treeId);
     return {
-    enqueues: await enqueues.find({treeId: Number(treeId)}).toArray(),
-    nodes:    await nodes.find({treeId: Number(treeId)}).toArray(),
-    subscribers:    await subscribers.find({treeId: Number(treeId)}).toArray(),
-    levels:    await levels.find({treeId: Number(treeId)}).toArray(),
-    nodeRequests:    await nodeRequests.find({treeId: Number(treeId)}).toArray(),
-    tree:    await trees.findOne({_id: Number(treeId)})
-};
+        enqueues: await enqueues.find({treeId: Number(treeId)}).toArray(),
+        nodes:    await nodes.find({treeId: Number(treeId)}).toArray(),
+        subscribers:    await subscribers.find({treeId: Number(treeId)}).toArray(),
+        levels:    await levels.find({treeId: Number(treeId)}).toArray(),
+        nodeRequests:    await nodeRequests.find({treeId: Number(treeId)}).toArray(),
+        tree:    await trees.findOne({_id: Number(treeId)})
+    };
 };

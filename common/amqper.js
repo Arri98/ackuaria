@@ -6,10 +6,10 @@ var config = require('./../ackuaria_config');
 var log = logger.getLogger("AMQPER");
 
 // Configuration default values
-GLOBAL.config = config || {};
-GLOBAL.config.rabbit = config.rabbit || {};
-GLOBAL.config.rabbit.host = config.rabbit.host || 'localhost';
-GLOBAL.config.rabbit.port = config.rabbit.port || 5672;
+global.config = config || {};
+global.config.rabbit = config.rabbit || {};
+global.config.rabbit.host = config.rabbit.host || 'localhost';
+global.config.rabbit.port = config.rabbit.port || 5672;
 
 var TIMEOUT = 5000;
 
@@ -23,11 +23,11 @@ var connection, rpc_exc, broadcast_exc, clientQueue;
 var addr = {};
 var rpcPublic = {};
 
-if (GLOBAL.config.rabbit.url !== undefined) {
-    addr.url = GLOBAL.config.rabbit.url;
+if (global.config.rabbit.url !== undefined) {
+    addr.url = global.config.rabbit.url;
 } else {
-    addr.host = GLOBAL.config.rabbit.host;
-    addr.port = GLOBAL.config.rabbit.port;
+    addr.host = global.config.rabbit.host;
+    addr.port = global.config.rabbit.port;
 }
 
 exports.setPublicRPC = function(methods) {

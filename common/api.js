@@ -12,9 +12,10 @@ var treeRegistry = require('./mdb/treeRegistry');
 var amqper = require('./../common/amqper');
 var N = require('./../nuve');
 
-GLOBAL.config = config || {};
+global.config = config || {};
 
-
+console.log(N);
+console.log(config);
 
 API.rooms = {};
 API.streams = {};
@@ -352,6 +353,7 @@ API.api.event = function(theEvent) {
         if (config.ackuaria.useDB) {
           roomsRegistry.hasRoom(roomID, function(hasRoom){
             if (!hasRoom) {
+              console.log(API.rooms);
               roomsRegistry.addRoom({
                 roomID: roomID,
                 roomName: API.rooms[roomID].roomName,
@@ -513,6 +515,10 @@ const processTreeEvent = (event) => {
     case "add_level":
       const level = {treeId: event.streamId, id: event.level, maxSubsPerNode: event.maxSubsPerNode, maxNextLevelNodes: event.maxNextLevelNodes, timestamp: event.timestamp };
       treeRegistry.addLevel(level);
+      break;
+    case "erizo_js":
+      const erizo = {treeId: event.streamId, erizoIdFakePub: event.erizoIdFakePub, erizoAgent: event.erizoAgent, fakePubClientId: event.fakePubClientId, timestamp: event.timestamp };
+      treeRegistry.addErizo(erizo);
       break;
   }
 };
