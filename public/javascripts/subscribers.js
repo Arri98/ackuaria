@@ -10,7 +10,7 @@ const publisherVideoStats = ['clientHostType', 'PLI', 'keyFrames', 'bitrateCalcu
 const publisherAudioStats = ['bitrateCalculated', 'NACK'];
 const subscriberVideoStats = ['clientHostType', 'PLI', 'keyFrames', 'bitrateCalculated', 'packetsLost', 'jitter', 'erizoSlideShow', 'NACK', 'streamPriority'];
 const subscriberAudioStats = ['bitrateCalculated', 'packetsLost', 'jitter', 'erizoAudioMute', 'erizoVideoMute', 'NACK'];
-const connectionStats = ['videoBitrate', 'senderBitrateEstimation', 'paddingBitrate', 'targetBitrate', 'numberOfStreams'];
+const connectionStats = ['videoBitrate', 'senderBitrateEstimation', 'paddingBitrate', 'targetBitrate', 'numberOfStreams', "connectionRTT"];
 
 
 $(document).ready(function(){
@@ -360,7 +360,7 @@ $(document).ready(function(){
 
     var updateRR = function(subID, audio, video, connection, timestamp) {
         var FLVideo, FLAudio, BW, audioBW, senderBitrateEstimation,
-            targetVideoBitrate, paddingBitrate, numberOfStreams, videoBitrate;
+            targetVideoBitrate, paddingBitrate, numberOfStreams, videoBitrate, rttPub;
         if (video) {
             FLVideo = video.fractionLost;
             BW = video.bitrateCalculated/1000;
@@ -375,6 +375,8 @@ $(document).ready(function(){
           paddingBitrate = connection.total.paddingBitrate;
           numberOfStreams = connection.total.numberOfStreams;
           videoBitrate = connection.total.videoBitrate;
+          console.log(connection.total);
+          rttPub = connection.total.senderAvgDelayEstimate;zz
         }
 
         var date = new Date(timestamp);
@@ -394,6 +396,7 @@ $(document).ready(function(){
             paddingBitrate: paddingBitrate,
             numberOfStreams: numberOfStreams,
             videoBitrate: videoBitrate,
+            rttPub: rttPub,
         };
         console.log("Updating with data", data);
         chartManager.newDataSub(subID, data);

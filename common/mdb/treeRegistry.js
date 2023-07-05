@@ -7,6 +7,7 @@ const nodes = db.collection("nodes");
 const subscribers = db.collection("subscribers");
 const erizos = db.collection("erizos");
 const agent = db.collection("agents");
+const agentEvents = db.collection("agentEvents");
 
 const getTree = exports.getTree = function(id, callback) {
     "use strict";
@@ -166,6 +167,20 @@ exports.addSubscriber = function(sub, callback) {
     });
 };
 
+exports.addAgentEvent = function(sub, callback) {
+    "use strict";
+
+    agentEvents.insertOne(sub, function(error, saved) {
+        if (error){
+            console.log('MongoDB: Error adding agentevent: ', error);
+        }
+        if (callback !== undefined) {
+            callback(saved);
+        }
+    });
+};
+
+
 exports.getQueueDelay = async(id) => {
     const enter = await enqueues.findOne({_id:id});
     const exit = await subscribers.findOne({_id:id});
@@ -193,6 +208,8 @@ exports.getNodeCreationDelay = async (treeId) => {
     }
     return delays;
 };
+
+
 
 exports.getAllEvents = async (treeId) => {
     console.log(treeId);

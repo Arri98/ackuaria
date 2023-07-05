@@ -287,7 +287,8 @@ API.api.event = function(theEvent) {
         if (API.rooms[roomID] !== undefined) {
           var indexRoom = API.rooms[roomID].streams.indexOf(streamID);
           if (indexRoom > -1) API.rooms[roomID].streams.splice(indexRoom, 1);
-          if (API.rooms[roomID].streams.length == 0) {
+          const force = true;
+          if (API.rooms[roomID].streams.length == 0 || force ) {
             // If room is empty the session is over
             if (session !== undefined) {
               session.finalTimestamp = finalTimestamp;
@@ -486,7 +487,7 @@ API.api.event = function(theEvent) {
       })
     }
   } catch (err) {
-    log.error("Error receiving event:", err);
+    log.error("Error receiving event:", err, theEvent);
   }
 };
 
@@ -497,7 +498,8 @@ const processTreeEvent = (event) => {
       treeRegistry.addSubscriber(subscriber);
       break;
     case "add_node":
-      const node = {treeId: event.streamId, levelId: event.level, id: event.nodeId, parentId: event.parentId, timestamp: event.timestamp};
+      const node = {treeId: event.streamId, levelId: event.level, id: event.nodeId, parentId: event.parentId, timestamp: event.timestamp, erizoJSId: event.erizoJSId, erizoAgent: event.erizoAgent};
+      subscribeToLicodeStatsStream(event.fakePubStreamId,config.stats.subscriptionDuration, config.stats.subscriptionInterval);
       treeRegistry.addNode(node)
       break;
     case "need_node":
@@ -520,6 +522,10 @@ const processTreeEvent = (event) => {
       const erizo = {treeId: event.streamId, erizoIdFakePub: event.erizoIdFakePub, erizoAgent: event.erizoAgent, fakePubClientId: event.fakePubClientId, timestamp: event.timestamp };
       treeRegistry.addErizo(erizo);
       break;
+    case "agent_event":
+      const erizoEvent = {erizoAgent: event.erizoAgent, enable:event.enable, timestamp: event.timestamp, cpuTreshold: event.cpuTreshold };
+      treeRegistry.addAgentEvent(erizoEvent);
+      break;
   }
 };
 
@@ -527,6 +533,7 @@ const processTreeEvent = (event) => {
 API.api.stats = function(theStats) {
   theStats = theStats.message;
   try {
+    console.log(theStats);
     sendStatsToClients(theStats);
 
   } catch (err) {

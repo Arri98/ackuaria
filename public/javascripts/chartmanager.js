@@ -1,6 +1,6 @@
 let ChartManager = () => {
   let that = {};
-  let svgVideo, svgAudio, svgSubsAudio, svgFLAudio, svgFLVideo, qualityLayers, qualityLayersPub, svgBWE, svgConnection;
+  let svgVideo, svgAudio, svgSubsAudio, svgFLAudio, svgFLVideo, qualityLayers, qualityLayersPub, svgBWE, rtt, svgConnection;
   let counterVideo, counterAudio;
 
   let getPubChartStyle = () => {
@@ -44,6 +44,11 @@ let ChartManager = () => {
   let drawBWEChart = () => {
     svgBWE = genericChart('chartBWE', 'Connection BW estimated', 'Connection BW estimated', getSubChartStyle());
   };
+
+  let drawRTT = () => {
+    rtt = genericChart('chartRTT', 'Connection RTT', 'Connection RTT', getSubChartStyle());
+  };
+
 
   let initQualityLayersChart = () => {
     qualityLayers = QualityLayersCharts(getSubChartStyle());
@@ -93,6 +98,14 @@ let ChartManager = () => {
     }
   };
 
+  let updateRTTChart = (newData) => {
+    console.log(newData);
+    if (rtt) {
+      rtt.updateChart('rtt', newData.val.rttPub);
+
+    }
+  };
+
   that.init = () => {
     maxWidth = $("#chartVideo").width();
     $("#subscriberModal").show();
@@ -138,9 +151,11 @@ let ChartManager = () => {
       drawFLVideoChart(subID);
       drawFLAudioChart(subID);
       drawBWEChart(subID);
+      drawRTT(subID);
       sub_modal_now = subID;
       return;
     }
+    console.log(data);
       const date = data.date;
       if (data.FLVideo !== undefined) {
         const FLVideo = data.FLVideo * 100 / 256;
@@ -161,6 +176,7 @@ let ChartManager = () => {
           date: date,
           val: data};
         updateBWEChart(newDataBWE);
+        updateRTTChart(newDataBWE);
       }
 
   }
