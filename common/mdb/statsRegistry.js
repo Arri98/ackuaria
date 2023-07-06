@@ -1,5 +1,5 @@
 var db = require('./dataBase').db;
-const stats = db.collection("stats");
+const stats = db.collection("stadisticas");
 
 var getStat = exports.getStat = function(id, callback) {
     "use strict";

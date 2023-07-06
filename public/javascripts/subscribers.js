@@ -376,7 +376,7 @@ $(document).ready(function(){
           numberOfStreams = connection.total.numberOfStreams;
           videoBitrate = connection.total.videoBitrate;
           console.log(connection.total);
-          rttPub = connection.total.senderAvgDelayEstimate;zz
+          rttPub = connection.total.senderAvgDelayEstimate;
         }
 
         var date = new Date(timestamp);

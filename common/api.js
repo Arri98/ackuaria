@@ -56,6 +56,9 @@ const sendStatsToClients = (event) => {
       }
     });
   });
+  if (config.ackuaria.useDB) {
+    statsRegistry.addStat(event);
+  }
 };
 
 const subscribeToLicodeStatsStream = (streamId, duration, interval) => {
@@ -69,6 +72,9 @@ const subscribeToLicodeStatsStream = (streamId, duration, interval) => {
 };
 
 const subscribeClientToStats = (socketId, streamId) => {
+
+  console.log('------------------\n',streamId , '\n------------------\n' );
+
   removeSubscriptionsforSocket(socketId);
   if (statsSubscriptions.has(streamId)){
     log.debug(`Adding socket ${socketId} to subscription  ${streamId}`);
@@ -499,7 +505,7 @@ const processTreeEvent = (event) => {
       break;
     case "add_node":
       const node = {treeId: event.streamId, levelId: event.level, id: event.nodeId, parentId: event.parentId, timestamp: event.timestamp, erizoJSId: event.erizoJSId, erizoAgent: event.erizoAgent};
-      subscribeToLicodeStatsStream(event.fakePubStreamId,config.stats.subscriptionDuration, config.stats.subscriptionInterval);
+      subscribeToLicodeStatsStream(event.fakePubStreamId, config.stats.subscriptionDuration, config.stats.subscriptionInterval);
       treeRegistry.addNode(node)
       break;
     case "need_node":
